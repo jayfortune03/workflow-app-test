@@ -16,11 +16,9 @@
     >
       <div style="display: flex; flex-direction: column">
         <span class="task-name">
-          {{ data?.name }}
+          {{ taskTitle }}
         </span>
-        <span class="task-reference-name">
-          ({{ data?.taskReferenceName }})
-        </span>
+        <span class="task-reference-name"> ({{ taskSubTitle }}) </span>
       </div>
 
       <div :class="['type-indicator', typeClass]">
@@ -28,9 +26,21 @@
       </div>
     </div>
 
-    <div v-if="data?.inputParameters" class="code-block">
-      <p>Evaluator Type/Language: {{ data?.inputParameters.evaluatorType }}</p>
-      <pre><code>{{ data?.inputParameters.expression }}</code></pre>
+    <div
+      v-if="Object.keys(data?.inputParameters).length !== 0"
+      class="code-block"
+    >
+      <div v-if="data?.inputParameters.evaluatorType">
+        <p>
+          Evaluator Type/Language: {{ data?.inputParameters.evaluatorType }}
+        </p>
+        <pre><code>{{ data?.inputParameters.expression }}</code></pre>
+      </div>
+
+      <div v-if="data?.inputParameters.http_request">
+        <p>Method: {{ data?.inputParameters.http_request.method }}</p>
+        <pre><code>{{ data?.inputParameters.http_request.uri }}</code></pre>
+      </div>
     </div>
 
     <v-btn v-if="isHovered" icon @click="addHandler" class="add-btn">
@@ -73,7 +83,25 @@ const typeClass = computed(() => {
   const type = props.data?.type?.toLowerCase();
   if (type === "inline") return "inline-type";
   if (type === "simple") return "simple-type";
+  if (type === "http") return "http-type";
   return "";
+});
+
+const taskTitle = computed(() => {
+  const type = props.data?.type?.toLowerCase();
+  if (type === "simple" || type === "inline") return props.data?.name;
+  if (type === "http") return props.data?.taskReferenceName;
+
+  return data.name;
+});
+
+const taskSubTitle = computed(() => {
+  const type = props.data?.type?.toLowerCase();
+  if (type === "simple" || type === "inline")
+    return props.data?.taskReferenceName;
+  if (type === "http") return props.data?.name;
+
+  return props.data.name;
 });
 
 onMounted(() => {
@@ -100,6 +128,17 @@ onMounted(() => {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+.code-block {
+  margin-top: 5px;
+  margin-bottom: 20px;
+  background-color: #ecf0f1;
+  padding: 15px;
+  border-radius: 5px;
+  max-height: 150px;
+  max-width: 350px;
+  overflow-x: auto;
+}
+
 .type-indicator {
   font-size: 12px;
   font-weight: bold;
@@ -116,6 +155,10 @@ onMounted(() => {
 
 .simple-type {
   background-color: #f39c12;
+}
+
+.http-type {
+  background-color: #e9702a;
 }
 
 .task-name {
@@ -164,17 +207,6 @@ onMounted(() => {
 .add-btn:hover,
 .delete-btn:hover {
   transform: scale(1.2);
-}
-
-.code-block {
-  margin-top: 5px;
-  margin-bottom: 20px;
-  background-color: #ecf0f1;
-  padding: 15px;
-  border-radius: 5px;
-  max-height: 150px;
-  max-width: 350px;
-  overflow-x: auto;
 }
 
 pre {

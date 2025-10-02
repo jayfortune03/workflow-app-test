@@ -6,7 +6,12 @@
   >
     <span>{{ data?.label }}</span>
 
-    <v-btn v-if="isHovered" icon @click="addHandler" class="add-btn">
+    <v-btn
+      v-if="isHovered && data.label === 'Start'"
+      icon
+      @click="addHandler"
+      class="add-btn"
+    >
       <v-icon>mdi-plus</v-icon>
     </v-btn>
   </div>
@@ -52,9 +57,9 @@ const addHandler = () => {
   justify-content: center;
   align-items: center;
   gap: 10px;
-  max-width: 50px;
-  width: 50px;
-  height: 50px;
+  width: 150px;
+  height: 150px;
+  font-size: 35px;
 }
 
 .add-btn {
