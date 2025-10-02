@@ -1,3 +1,39 @@
+<template>
+  <v-app>
+    <div class="container">
+      <v-btn variant="tonal"> Button </v-btn>
+
+      <div>
+        <h1>Workflows</h1>
+
+        <div class="workflow-list">
+          <div
+            v-for="workflow in workflows"
+            :key="workflow.id"
+            class="workflow-item"
+            @click="selectWorkflow(workflow)"
+          >
+            <h2>{{ workflow.name }}</h2>
+            <p>{{ workflow.description }}</p>
+          </div>
+        </div>
+
+        <div v-if="selectedWorkflow" class="task-buttons">
+          <button @click="addTask">Add Task</button>
+          <button @click="removeTask">Remove Task</button>
+        </div>
+
+        <div v-if="workflowMetadata">
+          <h2>Workflow Diagram</h2>
+          <div class="workflow-diagram">
+            <img :src="workflowMetadata.diagramUrl" alt="Workflow Diagram" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </v-app>
+</template>
+
 <script setup>
 import { onMounted, ref } from "vue";
 
@@ -7,7 +43,7 @@ const workflowMetadata = ref(null);
 
 const fetchWorkflows = async () => {
   try {
-    const response = await fetch("http://localhost:8080/api/workflows");
+    const response = await fetch("api/metadata/workflow");
     const data = await response.json();
     workflows.value = data;
   } catch (error) {
@@ -19,7 +55,7 @@ const selectWorkflow = async (workflow) => {
   selectedWorkflow.value = workflow;
   try {
     const response = await fetch(
-      `http://localhost:8080/api/workflow/${workflow.id}/metadata`
+      `/api/metadata/workflow/${workflow.id}/metadata`
     );
     const data = await response.json();
     workflowMetadata.value = data;
@@ -75,41 +111,12 @@ onMounted(() => {
 });
 </script>
 
-<template>
-  <div>
-    <h1>Workflows</h1>
-
-    <!-- Daftar Workflows -->
-    <div class="workflow-list">
-      <div
-        v-for="workflow in workflows"
-        :key="workflow.id"
-        class="workflow-item"
-        @click="selectWorkflow(workflow)"
-      >
-        <h2>{{ workflow.name }}</h2>
-        <p>{{ workflow.description }}</p>
-      </div>
-    </div>
-
-    <!-- Tombol untuk menambah dan mengurangi task -->
-    <div v-if="selectedWorkflow" class="task-buttons">
-      <button @click="addTask">Add Task</button>
-      <button @click="removeTask">Remove Task</button>
-    </div>
-
-    <!-- Menampilkan Diagram -->
-    <div v-if="workflowMetadata">
-      <h2>Workflow Diagram</h2>
-      <div class="workflow-diagram">
-        <!-- Bisa menggunakan library atau gambar untuk menampilkan diagram -->
-        <img :src="workflowMetadata.diagramUrl" alt="Workflow Diagram" />
-      </div>
-    </div>
-  </div>
-</template>
-
 <style scoped>
+.container {
+  margin-left: 2.5rem;
+  margin-right: 2.5rem;
+}
+
 .workflow-list {
   display: flex;
   flex-direction: column;
@@ -121,7 +128,7 @@ onMounted(() => {
   padding: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #f9f9f9;
+  background-color: #d81717;
   transition: background-color 0.3s;
 }
 
