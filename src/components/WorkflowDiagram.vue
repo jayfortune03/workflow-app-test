@@ -75,33 +75,83 @@ const {
 const zoom = ref(1);
 const pan = ref({ x: 0, y: 0 });
 
+const hasSwitchTask = computed(() => {
+  return props.tasks?.some((task) => task.type === "SWITCH");
+});
+const hasForkTask = computed(() => {
+  return props.tasks?.some((task) => task.type === "FORK_JOIN");
+});
+
 const nodes = computed(() => {
   if (props.tasks) {
     const startNode = {
       id: "start",
-      position: { x: 430, y: 0 },
+      position: { x: hasForkTask ? 1425 : 430, y: 0 },
       data: { label: "Start" },
       type: "start",
     };
 
-    const taskNodes = props.tasks.map((task, index) => {
-      const yPosition = nodeHeight * (index + 1); // Dynamically calculate Y position
+    let yPosition = nodeHeight;
+    const taskNodes = [];
 
-      return {
-        id: task.taskReferenceName,
-        position: { x: (containerWidth - nodeWidth) / 2, y: yPosition },
-        data: {
-          ...task,
-        },
-        type: task.type.toLowerCase(),
-      };
+    props.tasks.forEach((task, index) => {
+      if (task.type === "FORK_JOIN") {
+        const forkNode = {
+          id: task.taskReferenceName,
+          position: { x: containerWidth + 600, y: yPosition },
+          data: { label: "Fork", ...task },
+          type: "fork",
+        };
+        taskNodes.push(forkNode);
+
+        const spacing = -120;
+
+        let xPosition = spacing;
+        task.forkTasks.forEach((forkTaskArray) => {
+          forkTaskArray.forEach((forkTask) => {
+            taskNodes.push({
+              id: forkTask.taskReferenceName,
+              position: { x: xPosition, y: yPosition + 150 },
+              data: { ...forkTask },
+              type: "http",
+            });
+            xPosition += spacing + 700;
+          });
+        });
+
+        yPosition += nodeHeight * 2;
+      } else if (task.type === "JOIN") {
+        const joinNode = {
+          id: task.taskReferenceName,
+          position: { x: containerWidth + 600, y: yPosition },
+          data: { label: "Join", ...task },
+          type: "join",
+        };
+        taskNodes.push(joinNode);
+
+        yPosition += nodeHeight;
+      } else {
+        const taskNode = {
+          id: task.taskReferenceName,
+          position: {
+            x: hasForkTask
+              ? containerWidth + 500
+              : (containerWidth - nodeWidth) / 2,
+            y: yPosition,
+          },
+          data: { ...task },
+          type: task.type.toLowerCase(),
+        };
+        taskNodes.push(taskNode);
+        yPosition += nodeHeight;
+      }
     });
 
     const endNode = {
       id: "end",
       position: {
-        x: (containerWidth - nodeWidth) / 2,
-        y: nodeHeight * (props.tasks?.length + 1),
+        x: hasForkTask ? 1425 : (containerWidth - nodeWidth) / 2,
+        y: yPosition,
       },
       data: { label: "End" },
       type: "end",
@@ -109,7 +159,6 @@ const nodes = computed(() => {
 
     return [startNode, ...taskNodes, endNode];
   }
-
   return [];
 });
 
@@ -127,16 +176,50 @@ const edges = computed(() => {
       },
     });
 
-    for (let i = 0; i < props.tasks.length - 1; i++) {
-      edgeList.push({
-        id: `e${i}-${i + 1}`,
-        source: props.tasks[i].taskReferenceName,
-        target: props.tasks[i + 1].taskReferenceName,
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          color: "black",
-        },
-      });
+    for (let i = 0; i < props.tasks.length; i++) {
+      const currentTask = props.tasks[i];
+      const forkTasks = props.tasks.find((el) => el.type === "FORK_JOIN");
+      const nextTask = props.tasks[i + 1];
+
+      if (currentTask.type === "FORK_JOIN") {
+        currentTask.forkTasks.forEach((forkTaskArray) => {
+          forkTaskArray.forEach((forkTask) => {
+            edgeList.push({
+              id: `e_fork-${currentTask.taskReferenceName}-${forkTask.taskReferenceName}`,
+              source: currentTask.taskReferenceName,
+              target: forkTask.taskReferenceName,
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: "black",
+              },
+            });
+          });
+        });
+      } else if (currentTask.type === "JOIN") {
+        forkTasks.forkTasks.forEach((forkTaskArray) => {
+          forkTaskArray.forEach((forkTask) => {
+            edgeList.push({
+              id: `e_join-${forkTask.taskReferenceName}-join`,
+              source: forkTask.taskReferenceName,
+              target: `join`,
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: "black",
+              },
+            });
+          });
+        });
+      } else if (nextTask) {
+        edgeList.push({
+          id: `e${i}-${i + 1}`,
+          source: currentTask.taskReferenceName,
+          target: nextTask.taskReferenceName,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            color: "black",
+          },
+        });
+      }
     }
 
     edgeList.push({
@@ -163,13 +246,9 @@ watch([nodes, edges], () => {
   fitView();
 });
 
-const hasSwitchTask = computed(() => {
-  return props.tasks?.some((task) => task.type === "SWITCH");
-});
-
 const handleNodeClick = (props) => {
   const { data } = props.node;
-  console.log("Node clicked:", data);
+  console.log("Node clicked:", data, nodes, edges);
 };
 
 const handleEdgeClick = (edge) => {
