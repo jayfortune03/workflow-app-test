@@ -18,12 +18,16 @@
         </v-button>
       </Controls>
 
+      <template #node-inline="props">
+        <inline-node :id="props.id" :data="props.data" />
+      </template>
+
       <template #node-start="props">
-        <process-node :id="props.id" :data="props.data" :type="'Start'" />
+        <process-node :id="props.id" :data="props.data" />
       </template>
 
       <template #node-end="props">
-        <process-node :id="props.id" :data="props.data" :type="'End'" />
+        <process-node :id="props.id" :data="props.data" />
       </template>
     </VueFlow>
     <div class="actions">
@@ -41,12 +45,13 @@ import { Background } from "@vue-flow/background";
 import { Controls } from "@vue-flow/controls";
 import { MiniMap } from "@vue-flow/minimap";
 import ProcessNode from "./ProcessNode.vue";
+import InlineNode from "./InlineNode.vue";
 
 const nodes = ref([
   {
     id: "start",
     position: { x: 100, y: 0 },
-    data: {},
+    data: { label: "Start" },
     type: "start",
   },
   {
@@ -56,8 +61,14 @@ const nodes = ref([
     type: "simple",
   },
   {
+    id: "node2",
+    position: { x: 50, y: 200 },
+    data: { label: "Inline Task" },
+    type: "inline",
+  },
+  {
     id: "end",
-    position: { x: 100, y: 200 },
+    position: { x: 100, y: 300 },
     data: { label: "End" },
     type: "end",
   },
@@ -65,7 +76,7 @@ const nodes = ref([
 
 const edges = ref([
   {
-    id: "e1-2",
+    id: "e1-1",
     source: "start",
     target: "node1",
     markerEnd: {
@@ -74,8 +85,17 @@ const edges = ref([
     },
   },
   {
-    id: "e1-3",
+    id: "e1-2",
     source: "node1",
+    target: "node2",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      color: "black",
+    },
+  },
+  {
+    id: "e1-3",
+    source: "node2",
     target: "end",
     markerEnd: {
       type: MarkerType.ArrowClosed,

@@ -1,14 +1,15 @@
 <template>
-  <div class="container">
-    <span>{{ data?.label }}</span>
-  </div>
+  <div class="container">{{ data?.label }}</div>
 
-  <Handle id="a" type="source" :position="handlePosition" />
+  <!-- <Handle
+    id="a"
+    type="source"
+    :position="type === 'Start' ? Position.Bottom : Position.Top"
+  /> -->
 </template>
 
 <script setup>
 import { Handle, Position } from "@vue-flow/core";
-import { computed } from "vue";
 
 const props = defineProps({
   id: {
@@ -19,15 +20,8 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  type: {
-    type: String,
-    required: true,
-  },
 });
-
-const handlePosition = computed(() => {
-  return props.data.label === "Start" ? Position.Bottom : Position.Top;
-});
+console.log(`🥶🥶🥶🥶 ~ フ ク ロ ウ props.data:`, props.data);
 </script>
 
 <style scoped>
@@ -35,15 +29,13 @@ const handlePosition = computed(() => {
   border: 1px solid #777;
   font-weight: 600;
   padding: 10px;
-  border-radius: 50%;
-  background: #f5f5f5;
+  background: #d4d4d4;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  max-width: 50px;
-  width: 50px;
-  height: 50px;
+  min-width: 150px;
+  min-height: 70px;
 }
 </style>
