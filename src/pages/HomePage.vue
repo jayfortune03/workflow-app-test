@@ -1,41 +1,44 @@
 <template>
   <v-app>
-    <div class="container">
-      <v-btn variant="tonal"> Button </v-btn>
+    <v-container>
+      <v-row>
+        <v-col cols="3">
+          <v-card>
+            <v-card-title>Workflows</v-card-title>
+            <v-list>
+              <v-list-item
+                v-for="workflow in workflows"
+                :key="workflow.id"
+                @click="selectWorkflow(workflow)"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ workflow.name }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-col>
 
-      <div>
-        <h1>Workflows</h1>
+        <v-col cols="4">
+          <v-card>
+            <v-card-title>Workflow Data</v-card-title>
+            <v-card-text>
+              <pre>{{ selectedWorkflow }}</pre>
+            </v-card-text>
+          </v-card>
+        </v-col>
 
-        <div class="workflow-list">
-          <div
-            v-for="workflow in workflows"
-            :key="workflow.id"
-            class="workflow-item"
-            @click="selectWorkflow(workflow)"
-          >
-            <h2>{{ workflow.name }}</h2>
-            <p>{{ workflow.description }}</p>
-          </div>
-        </div>
-
-        <div v-if="selectedWorkflow" class="task-buttons">
-          <button @click="addTask">Add Task</button>
-          <button @click="removeTask">Remove Task</button>
-        </div>
-
-        <div v-if="workflowMetadata">
-          <h2>Workflow Diagram</h2>
-          <div class="workflow-diagram">
-            <img :src="workflowMetadata.diagramUrl" alt="Workflow Diagram" />
-          </div>
-        </div>
-      </div>
-    </div>
+        <v-col cols="5">
+          <workflow-diagram :tasks="tasks" />
+        </v-col>
+      </v-row>
+    </v-container>
   </v-app>
 </template>
 
 <script setup>
 import { onMounted, ref } from "vue";
+import WorkflowDiagram from "@/components/WorkflowDiagram.vue";
 
 const workflows = ref([]);
 const selectedWorkflow = ref(null);
