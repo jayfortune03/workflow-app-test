@@ -19,7 +19,11 @@
       </Controls>
 
       <template #node-inline="props">
-        <inline-node :id="props.id" :data="props.data" />
+        <simple-inline-node :id="props.id" :data="props.data" />
+      </template>
+
+      <template #node-simple="props">
+        <simple-inline-node :id="props.id" :data="props.data" />
       </template>
 
       <template #node-start="props">
@@ -45,30 +49,49 @@ import { Background } from "@vue-flow/background";
 import { Controls } from "@vue-flow/controls";
 import { MiniMap } from "@vue-flow/minimap";
 import ProcessNode from "./ProcessNode.vue";
-import InlineNode from "./InlineNode.vue";
+import SimpleInlineNode from "./SimpleInlineNode.vue";
+
+const containerWidth = 800;
+const nodeWidth = 150;
+const nodeHeight = 70;
 
 const nodes = ref([
   {
     id: "start",
-    position: { x: 100, y: 0 },
+    position: { x: (containerWidth - nodeWidth) / 2, y: 0 },
     data: { label: "Start" },
     type: "start",
   },
   {
     id: "node1",
-    position: { x: 50, y: 100 },
-    data: { label: "Simple Task" },
+    position: { x: (containerWidth - nodeWidth) / 2, y: nodeHeight * 2 },
+    data: {
+      label: "Simple Task",
+      type: "SIMPLE",
+      referenceLabel: "simple_node",
+    },
     type: "simple",
   },
   {
     id: "node2",
-    position: { x: 50, y: 200 },
-    data: { label: "Inline Task" },
+    position: { x: (containerWidth - nodeWidth) / 2, y: nodeHeight * 4 },
+    data: {
+      name: "Inline Task",
+      type: "INLINE",
+      taskReferenceName: "inline_node",
+      inputParameters: {
+        evaluatorType: "javascript",
+        fraksikwh: "${workflow.input.data.fraksikwh}",
+        emin: "${workflow.input.data.emin}",
+        expression:
+          "    function generatedFunction() {      var fraksikwh =  1;       return fraksikwh;    }    generatedFunction()  ",
+      },
+    },
     type: "inline",
   },
   {
     id: "end",
-    position: { x: 100, y: 300 },
+    position: { x: (containerWidth - nodeWidth) / 2, y: nodeHeight * 6 },
     data: { label: "End" },
     type: "end",
   },
