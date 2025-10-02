@@ -42,10 +42,7 @@
                   {{ selectedWorkflow.name }}
                 </h3>
 
-                <pre class="json-editor">
-                    {{ selectedWorkflow }}
-                  </pre
-                >
+                <pre class="json-editor" v-html="formattedJson"></pre>
               </div>
               <div v-else>
                 <h3 style="margin-top: 20px; margin-bottom: 15px">
@@ -72,9 +69,12 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import WorkflowDiagram from "@/components/WorkflowDiagram.vue";
+import Prism from "prismjs";
+import "prismjs/components/prism-json.min.js";
 
 const workflows = ref([]);
 const selectedWorkflow = ref(null);
+const formattedJson = ref("");
 
 const fetchWorkflows = async () => {
   try {
@@ -88,7 +88,11 @@ const fetchWorkflows = async () => {
 
 const selectWorkflow = async (workflow) => {
   selectedWorkflow.value = workflow;
-  formattedJson.value = JSON.stringify(workflow, null, 2);
+  formattedJson.value = Prism.highlight(
+    JSON.stringify(workflow, null, 2),
+    Prism.languages.json,
+    "json"
+  );
 };
 
 onMounted(() => {
@@ -97,20 +101,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.code-block {
-  margin-top: 5px;
-  margin-bottom: 20px;
-  background-color: #ecf0f1;
-  padding: 15px;
-  border-radius: 5px;
-  width: 100%;
-}
-
-.container {
-  margin-left: 2.5rem;
-  margin-right: 2.5rem;
-}
-
 .workflow-card {
   background-color: #ffffff;
   border-radius: 8px;
@@ -158,7 +148,7 @@ onMounted(() => {
 }
 
 .scrollable {
-  max-height: 90vh;
+  max-height: 80dvh;
   overflow-y: auto;
   padding: 12px;
   font-family: "Courier New", monospace;
@@ -176,14 +166,14 @@ onMounted(() => {
 .json-editor {
   font-size: 14px;
   line-height: 1.6;
-  max-height: 70vh;
+  max-height: 70dvh;
   overflow-y: auto;
   word-wrap: break-word;
   padding: 10px;
   background-color: #1e1e1e;
   border-radius: 5px;
   color: #f1f1f1;
-  font-family: "Courier New", monospace; /* Monospaced font for code */
+  font-family: "Courier New", monospace;
 }
 
 .workflow-diagram {
