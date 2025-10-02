@@ -38,6 +38,14 @@
       <template #node-end="props">
         <process-node :id="props.id" :data="props.data" />
       </template>
+
+      <template #node-fork="props">
+        <join-fork-node :id="props.id" :data="props.data" />
+      </template>
+
+      <template #node-join="props">
+        <join-fork-node :id="props.id" :data="props.data" />
+      </template>
     </VueFlow>
   </div>
 </template>
@@ -50,6 +58,7 @@ import { Controls } from "@vue-flow/controls";
 import { MiniMap } from "@vue-flow/minimap";
 import ProcessNode from "./ProcessNode.vue";
 import TaskTypeNode from "./TaskTypeNode.vue";
+import JoinForkNode from "./JoinForkNode.vue";
 
 const containerWidth = 800;
 const nodeWidth = 150;
@@ -98,7 +107,7 @@ const nodes = computed(() => {
       if (task.type === "FORK_JOIN") {
         const forkNode = {
           id: task.taskReferenceName,
-          position: { x: containerWidth + 600, y: yPosition },
+          position: { x: containerWidth + 450, y: yPosition },
           data: { label: "Fork", ...task },
           type: "fork",
         };
@@ -123,7 +132,7 @@ const nodes = computed(() => {
       } else if (task.type === "JOIN") {
         const joinNode = {
           id: task.taskReferenceName,
-          position: { x: containerWidth + 600, y: yPosition },
+          position: { x: containerWidth + 450, y: yPosition },
           data: { label: "Join", ...task },
           type: "join",
         };
@@ -202,7 +211,7 @@ const edges = computed(() => {
               id: `e_join-${forkTask.taskReferenceName}-join`,
               source: forkTask.taskReferenceName,
               target: `join`,
-              markerEnd: {
+              markerStart: {
                 type: MarkerType.ArrowClosed,
                 color: "black",
               },
