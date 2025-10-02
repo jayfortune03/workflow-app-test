@@ -34,11 +34,11 @@
         <process-node :id="props.id" :data="props.data" />
       </template>
     </VueFlow>
-    <div class="actions">
+    <!-- <div class="actions">
       <button @click="addTask">Add Task</button>
       <button @click="removeTask">Remove Task</button>
       <button @click="addConnection">Add Connection</button>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -54,6 +54,13 @@ import SimpleInlineNode from "./SimpleInlineNode.vue";
 const containerWidth = 800;
 const nodeWidth = 150;
 const nodeHeight = 70;
+
+const props = defineProps({
+  tasks: {
+    type: Object,
+    required: true,
+  },
+});
 
 const nodes = ref([
   {
