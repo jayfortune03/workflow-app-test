@@ -4,15 +4,30 @@
     @mouseenter="isHovered = true"
     @mouseleave="isHovered = false"
   >
-    <span class="task-name">
-      {{ data?.name }}
-    </span>
+    <div
+      style="
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+        padding-right: 20px;
+        gap: 20px;
+      "
+    >
+      <div style="display: flex; flex-direction: column">
+        <span class="task-name">
+          {{ data?.name }}
+        </span>
+        <span class="task-reference-name">
+          ({{ data?.taskReferenceName }})
+        </span>
+      </div>
 
-    <span class="task-reference-name"> ({{ data?.taskReferenceName }}) </span>
-
-    <div :class="['type-indicator', typeClass]">
-      <span>{{ data?.type || "Simple" }}</span>
+      <div :class="['type-indicator', typeClass]">
+        <span>{{ data?.type || "Simple" }}</span>
+      </div>
     </div>
+
     <div v-if="data?.inputParameters" class="code-block">
       <p>Evaluator Type/Language: {{ data?.inputParameters.evaluatorType }}</p>
       <pre><code>{{ data?.inputParameters.expression }}</code></pre>
@@ -79,20 +94,20 @@ onMounted(() => {
   gap: 15px;
   min-width: 180px;
   min-height: 100px;
+  max-height: 300px;
+  max-width: 500px;
   position: relative;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .type-indicator {
-  position: absolute;
-  top: 10px;
-  left: 10px;
   font-size: 12px;
   font-weight: bold;
   padding: 5px 10px;
   border-radius: 5px;
   text-transform: uppercase;
   color: white;
+  margin-left: auto;
 }
 
 .inline-type {
@@ -121,9 +136,9 @@ onMounted(() => {
 .add-btn,
 .delete-btn {
   position: absolute;
-  width: 30px;
-  height: 30px;
-  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
   padding: 5px;
   border-radius: 50%;
   display: flex;
@@ -140,8 +155,8 @@ onMounted(() => {
 }
 
 .delete-btn {
-  top: 10px;
-  right: 10px;
+  top: 5px;
+  right: 5px;
   background-color: #e74c3c;
   color: white;
 }
@@ -157,8 +172,8 @@ onMounted(() => {
   background-color: #ecf0f1;
   padding: 15px;
   border-radius: 5px;
-  width: 100%;
   max-height: 150px;
+  max-width: 350px;
   overflow-x: auto;
 }
 
