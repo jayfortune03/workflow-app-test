@@ -7,8 +7,25 @@
       :pan="pan"
       :onNodeClick="handleNodeClick"
       :onEdgeClick="handleEdgeClick"
-    />
-    <!-- Add buttons to add/remove tasks -->
+    >
+      <Background pattern-color="#aaa" :gap="16" />
+
+      <MiniMap />
+
+      <Controls position="top-right">
+        <v-button title="Reset Transform" @click="resetTransform">
+          <Icon name="reset" />
+        </v-button>
+      </Controls>
+
+      <template #node-start="props">
+        <process-node :id="props.id" :data="props.data" :type="'Start'" />
+      </template>
+
+      <template #node-end="props">
+        <process-node :id="props.id" :data="props.data" :type="'End'" />
+      </template>
+    </VueFlow>
     <div class="actions">
       <button @click="addTask">Add Task</button>
       <button @click="removeTask">Remove Task</button>
@@ -19,46 +36,85 @@
 
 <script setup>
 import { ref } from "vue";
-import { VueFlow } from "@vue-flow/core";
+import { MarkerType, VueFlow, useVueFlow } from "@vue-flow/core";
+import { Background } from "@vue-flow/background";
+import { Controls } from "@vue-flow/controls";
+import { MiniMap } from "@vue-flow/minimap";
+import ProcessNode from "./ProcessNode.vue";
 
-// Define the nodes and edges for the workflow diagram
 const nodes = ref([
-  { id: "node1", position: { x: 100, y: 100 }, data: { label: "SWITCH Task" } },
-  { id: "node2", position: { x: 300, y: 100 }, data: { label: "INLINE Task" } },
-  { id: "node3", position: { x: 500, y: 100 }, data: { label: "HTTP Task" } },
+  {
+    id: "start",
+    position: { x: 100, y: 0 },
+    data: {},
+    type: "start",
+  },
+  {
+    id: "node1",
+    position: { x: 50, y: 100 },
+    data: { label: "Simple Task" },
+    type: "simple",
+  },
+  {
+    id: "end",
+    position: { x: 100, y: 200 },
+    data: { label: "End" },
+    type: "end",
+  },
 ]);
 
 const edges = ref([
-  { id: "e1-2", source: "node1", target: "node2" },
-  { id: "e2-3", source: "node2", target: "node3" },
+  {
+    id: "e1-2",
+    source: "start",
+    target: "node1",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      color: "black",
+    },
+  },
+  {
+    id: "e1-3",
+    source: "node1",
+    target: "end",
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      color: "black",
+    },
+  },
 ]);
 
-// Zoom and pan state
+const { onInit, onNodeDragStop, onConnect, addEdges, setViewport, toObject } =
+  useVueFlow();
+
 const zoom = ref(1);
 const pan = ref({ x: 0, y: 0 });
 
-// Function to handle node click
+onInit((vueFlowInstance) => {
+  // instance is the same as the return of `useVueFlow`
+  vueFlowInstance.fitView();
+});
+
 const handleNodeClick = (node) => {
   console.log("Node clicked:", node);
+  console.log(`🥶🥶🥶🥶 ~ フ ク ロ ウ toObject:`, toObject());
 };
 
-// Function to handle edge click
 const handleEdgeClick = (edge) => {
   console.log("Edge clicked:", edge);
 };
 
-// Function to add a new task (node)
 const addTask = () => {
   const newNode = {
     id: `node${nodes.value.length + 1}`,
     position: { x: Math.random() * 500, y: Math.random() * 500 },
     data: { label: `New Task ${nodes.value.length + 1}` },
+    type: "simple",
   };
   nodes.value.push(newNode);
   console.log("Task added:", newNode);
 };
 
-// Function to remove a task (node)
 const removeTask = () => {
   if (nodes.value.length > 0) {
     const removedNode = nodes.value.pop();
@@ -69,7 +125,6 @@ const removeTask = () => {
   }
 };
 
-// Function to add a new connection (edge)
 const addConnection = () => {
   if (nodes.value.length > 1) {
     const sourceNode = nodes.value[0];
@@ -83,15 +138,24 @@ const addConnection = () => {
     console.log("Connection added:", newEdge);
   }
 };
+
+const resetTransform = () => {
+  setViewport({ x: 0, y: 0, zoom: 1 });
+};
 </script>
 
 <style scoped>
+@import "https://cdn.jsdelivr.net/npm/@vue-flow/core@1.47.0/dist/style.css";
+@import "https://cdn.jsdelivr.net/npm/@vue-flow/core@1.47.0/dist/theme-default.css";
+@import "https://cdn.jsdelivr.net/npm/@vue-flow/controls@latest/dist/style.css";
+@import "https://cdn.jsdelivr.net/npm/@vue-flow/minimap@latest/dist/style.css";
+@import "https://cdn.jsdelivr.net/npm/@vue-flow/node-resizer@latest/dist/style.css";
+
 #workflow-diagram {
   position: relative;
   width: 100%;
   height: 500px;
   border: 1px solid #ccc;
-  margin-bottom: 20px;
 }
 
 .actions {
