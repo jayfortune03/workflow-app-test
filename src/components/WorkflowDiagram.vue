@@ -9,6 +9,7 @@
       :nodes="nodes"
       :edges="edges"
       :zoom="zoom"
+      v-model:viewport="viewport"
       :pan="pan"
       :onNodeClick="handleNodeClick"
       :onEdgeClick="handleEdgeClick"
@@ -51,7 +52,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { MarkerType, VueFlow, useVueFlow } from "@vue-flow/core";
 import { Background } from "@vue-flow/background";
 import { Controls } from "@vue-flow/controls";
@@ -79,10 +80,12 @@ const {
   addEdges,
   setViewport,
   toObject,
+  setCenter,
 } = useVueFlow();
 
 const zoom = ref(1);
 const pan = ref({ x: 0, y: 0 });
+const viewport = ref({ x: 2000, y: 0, zoom: 0 });
 
 const hasSwitchTask = computed(() => {
   return props.tasks?.some((task) => task.type === "SWITCH");
@@ -95,7 +98,7 @@ const nodes = computed(() => {
   if (props.tasks) {
     const startNode = {
       id: "start",
-      position: { x: hasForkTask ? 1425 : 430, y: 0 },
+      position: { x: hasForkTask.value ? 1425 : 430, y: 0 },
       data: { label: "Start" },
       type: "start",
     };
@@ -120,7 +123,7 @@ const nodes = computed(() => {
           forkTaskArray.forEach((forkTask) => {
             taskNodes.push({
               id: forkTask.taskReferenceName,
-              position: { x: xPosition, y: yPosition + 150 },
+              position: { x: xPosition, y: yPosition + 250 },
               data: { ...forkTask },
               type: "http",
             });
@@ -143,7 +146,7 @@ const nodes = computed(() => {
         const taskNode = {
           id: task.taskReferenceName,
           position: {
-            x: hasForkTask
+            x: hasForkTask.value
               ? containerWidth + 500
               : (containerWidth - nodeWidth) / 2,
             y: yPosition,
@@ -159,7 +162,7 @@ const nodes = computed(() => {
     const endNode = {
       id: "end",
       position: {
-        x: hasForkTask ? 1425 : (containerWidth - nodeWidth) / 2,
+        x: hasForkTask.value ? 1425 : (containerWidth - nodeWidth) / 2,
         y: yPosition,
       },
       data: { label: "End" },
@@ -211,7 +214,7 @@ const edges = computed(() => {
               id: `e_join-${forkTask.taskReferenceName}-join`,
               source: forkTask.taskReferenceName,
               target: `join`,
-              markerStart: {
+              markerEnd: {
                 type: MarkerType.ArrowClosed,
                 color: "black",
               },
@@ -250,10 +253,23 @@ onInit((vueFlowInstance) => {
   vueFlowInstance.fitView();
 });
 
-watch([nodes, edges], () => {
-  pan.value = { x: pan.value.x, y: 0 };
-  fitView();
-});
+watch(
+  () => props.tasks !== undefined,
+  async () => {
+    await nextTick();
+    if (hasForkTask.value) {
+      console.log("fork punya ini ");
+      viewport.value = { x: -1250, y: 20, zoom: 1 };
+      setViewport({ x: -1250, y: 20, zoom: 1 });
+      pan.value = { x: -1250, y: 20, zoom: 1 };
+    } else {
+      viewport.value = { x: -290, y: 20, zoom: 1 };
+      setViewport({ x: -290, y: 20, zoom: 1 });
+      pan.value = { x: -290, y: 20, zoom: 1 };
+    }
+  },
+  { deep: true, immediate: true }
+);
 
 const handleNodeClick = (props) => {
   const { data } = props.node;

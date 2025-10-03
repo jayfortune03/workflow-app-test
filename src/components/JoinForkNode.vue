@@ -2,13 +2,11 @@
   <div :class="containerClass">
     <span :class="labelClass">{{ label }}</span>
     <span>({{ data?.taskReferenceName }})</span>
-    <Handle id="a" type="source" :position="handlePosition" />
   </div>
 </template>
 
 <script setup>
-import { Handle, Position } from "@vue-flow/core";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 
 const props = defineProps({
   id: {
