@@ -66,11 +66,13 @@ const addHandler = () => {
   z-index: 100;
   position: absolute;
   bottom: 0;
-  width: 10px !important;
-  height: 10px !important;
-  font-size: 5px;
-  background-color: rgb(57, 118, 231);
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 10px;
+  background-color: #3498db;
   color: white;
+  margin-bottom: 5px;
+
   padding: 2px;
 }
 </style>
