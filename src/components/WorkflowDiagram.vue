@@ -48,7 +48,11 @@
       </template>
 
       <template #node-start="props">
-        <process-node :id="props.id" :data="props.data" />
+        <process-node
+          :id="props.id"
+          :data="props.data"
+          @add-start="openAddDialog"
+        />
       </template>
 
       <template #node-end="props">
@@ -330,12 +334,16 @@ const buildGraph = (tasks) => {
       const spacing = -120;
 
       let xPosition = spacing;
-      task.forkTasks.forEach((forkTaskArray) => {
+      task.forkTasks.forEach((forkTaskArray, forkTaskIndex) => {
         forkTaskArray.forEach((forkTask) => {
           nodeData.push({
             id: forkTask.taskReferenceName,
             position: { x: xPosition, y: yPosition + 250 },
-            data: { ...forkTask },
+            data: {
+              ...forkTask,
+              fromTaskIndex: index,
+              forkTaskIndex: forkTaskIndex,
+            },
             type: "http",
           });
           xPosition += spacing + 700;

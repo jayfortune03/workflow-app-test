@@ -25,6 +25,8 @@ import { computed, ref } from "vue";
 
 const isHovered = ref(false);
 
+const emit = defineEmits(["add-start"]);
+
 const props = defineProps({
   id: {
     type: String,
@@ -42,6 +44,7 @@ const handlePosition = computed(() => {
 
 const addHandler = () => {
   console.log("Add button clicked");
+  emit("add-start");
 };
 </script>
 

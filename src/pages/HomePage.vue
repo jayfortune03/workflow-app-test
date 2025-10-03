@@ -218,6 +218,21 @@ const isDirty = computed(() => {
       workflow &&
       workflow.tasks.length === selectedWorkflow.value.tasks.length
     ) {
+      const indexFork = workflow.tasks.findIndex(
+        (task) => task.type === "FORK_JOIN"
+      );
+      if (indexFork !== -1) {
+        const totalOriginalForkTasks = workflow.tasks[
+          indexFork
+        ].forkTasks.flatMap((t) => t.flat());
+
+        const totalSelectedForkTasks = selectedWorkflow.value.tasks[
+          indexFork
+        ].forkTasks.flatMap((t) => t.flat());
+
+        return totalOriginalForkTasks.length !== totalSelectedForkTasks.length;
+      }
+
       return false;
     }
 
@@ -297,23 +312,44 @@ const handleAdd = (data) => {
     (t) => t.taskReferenceName === task.taskReferenceName
   );
 
+  const currentWorkflowTasks = selectedWorkflow.value.tasks;
+
   if (idx !== -1) {
-    selectedWorkflow.value.tasks.splice(idx + 1, 0, payload);
+    currentWorkflowTasks.splice(idx + 1, 0, payload);
+  } else if (task.label === "Start") {
+    currentWorkflowTasks.splice(0, 0, payload);
+  } else if (task.fromTaskIndex !== undefined) {
+    const forkTasks = currentWorkflowTasks[task.fromTaskIndex];
+
+    currentWorkflowTasks[task.fromTaskIndex].forkTasks.splice(
+      task.forkTaskIndex + 1,
+      0,
+      [payload]
+    );
   } else {
-    selectedWorkflow.value.tasks.push(payload);
+    currentWorkflowTasks.push(payload);
   }
 };
 
 const handleDelete = (data) => {
-  console.log(`🥶🥶🥶🥶 ~ フ ク ロ ウ data:`, data);
-
   const { task } = data;
+  if (task.forkTaskIndex !== undefined && task.fromTaskIndex !== undefined) {
+    const targetRef = task.taskReferenceName;
 
-  const filteredTask = selectedWorkflow.value.tasks.filter(
-    (el) => el.taskReferenceName !== task.taskReferenceName
-  );
+    const fork = selectedWorkflow.value.tasks[task.fromTaskIndex].forkTasks;
+    const filteredForkTasks = fork.filter(
+      (branch) => !branch.some((t) => t.taskReferenceName === targetRef)
+    );
 
-  selectedWorkflow.value.tasks = filteredTask;
+    selectedWorkflow.value.tasks[task.fromTaskIndex].forkTasks =
+      filteredForkTasks;
+  } else {
+    const filteredTask = selectedWorkflow.value.tasks.filter(
+      (el) => el.taskReferenceName !== task.taskReferenceName
+    );
+
+    selectedWorkflow.value.tasks = filteredTask;
+  }
 };
 
 const resetWorkflowTask = () => {
