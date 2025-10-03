@@ -48,10 +48,11 @@ export default defineConfig({
   define: { "process.env": {} },
   resolve: {
     alias: {
-      "@": fileURLToPath(new URL("src", import.meta.url)),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
     extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
   },
+  base: "/",
   server: {
     port: 3000,
     proxy: {
