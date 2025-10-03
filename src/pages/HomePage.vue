@@ -270,7 +270,6 @@ const saveWorkflow = async () => {
       message: `Workflow “${selectedWorkflow.value.name}” berhasil disimpan.`,
       color: "success",
     });
-    console.log("✅ Workflow tersimpan");
   } catch (e) {
     showToast({
       message: "Gagal menyimpan workflow.",

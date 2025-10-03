@@ -75,12 +75,10 @@ const props = defineProps({
 });
 
 const addHandler = () => {
-  console.log("Add button clicked");
   emit("add");
 };
 
 const deleteHandler = () => {
-  console.log("Delete button clicked");
   emit("delete");
 };
 

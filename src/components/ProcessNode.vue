@@ -43,7 +43,6 @@ const handlePosition = computed(() => {
 });
 
 const addHandler = () => {
-  console.log("Add button clicked");
   emit("add-start");
 };
 </script>

@@ -600,9 +600,7 @@ const handleNodeClick = (props) => {
   selectedNode.value = data;
 };
 
-const handleEdgeClick = (edge) => {
-  console.log("Edge clicked:", edge);
-};
+const handleEdgeClick = (edge) => {};
 
 onInit((vueFlowInstance) => {
   vueFlowInstance.fitView();
@@ -623,7 +621,6 @@ watch(
     await nextTick();
 
     if (hasForkTask.value) {
-      console.log("fork punya ini ");
       viewport.value = { x: -1250, y: 20, zoom: 1 };
       setViewport({ x: -1250, y: 20, zoom: 1 });
       pan.value = { x: -1250, y: 20, zoom: 1 };
