@@ -30,11 +30,11 @@
       v-if="Object.keys(data?.inputParameters).length !== 0"
       class="code-block"
     >
-      <div v-if="data?.inputParameters.evaluatorType">
+      <div v-if="data?.inputParameters.evaluatorType && renderedCode">
         <p>
           Evaluator Type/Language: {{ data?.inputParameters.evaluatorType }}
         </p>
-        <pre><code>{{ data?.inputParameters.expression }}</code></pre>
+        <pre><code>{{ renderedCode }}</code></pre>
       </div>
 
       <div v-if="data?.inputParameters.http_request">
@@ -60,6 +60,9 @@ import "prismjs/themes/prism-tomorrow.css";
 import "prismjs/components/prism-javascript.min.js";
 
 const isHovered = ref(false);
+
+const emit = defineEmits(["delete", "add"]);
+
 const props = defineProps({
   id: {
     type: String,
@@ -73,10 +76,12 @@ const props = defineProps({
 
 const addHandler = () => {
   console.log("Add button clicked");
+  emit("add");
 };
 
 const deleteHandler = () => {
   console.log("Delete button clicked");
+  emit("delete");
 };
 
 const typeClass = computed(() => {
@@ -102,6 +107,16 @@ const taskSubTitle = computed(() => {
   if (type === "http") return props.data?.name;
 
   return props.data.name;
+});
+
+const renderedCode = computed(() => {
+  if (props.data) {
+    const { expression, expressions } = props.data.inputParameters;
+
+    return expression || expressions;
+  }
+
+  return null;
 });
 
 onMounted(() => {
