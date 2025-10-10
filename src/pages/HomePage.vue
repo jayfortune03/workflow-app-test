@@ -261,7 +261,10 @@ const saveWorkflow = async () => {
     const url = `api/metadata/workflow`;
     const res = await fetch(url, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
       body: JSON.stringify([selectedWorkflow.value]),
     });
     if (!res.ok) throw new Error(await res.text());
@@ -287,7 +290,9 @@ const saveWorkflow = async () => {
 
 const fetchWorkflows = async () => {
   try {
-    const response = await fetch("api/metadata/workflow");
+    const response = await fetch("api/metadata/workflow", {
+      headers: { "ngrok-skip-browser-warning": "true" },
+    });
     const data = await response.json();
     workflows.value = data;
   } catch (error) {

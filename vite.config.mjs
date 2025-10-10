@@ -1,3 +1,4 @@
+// vite.config.mjs
 // Plugins
 import Components from "unplugin-vue-components/vite";
 import Vue from "@vitejs/plugin-vue";
@@ -10,13 +11,12 @@ import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ command, mode }) => ({
   plugins: [
     VueRouter(),
     Vue({
       template: { transformAssetUrls },
     }),
-    // https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin#readme
     Vuetify({
       autoImport: true,
       styles: {
@@ -45,7 +45,6 @@ export default defineConfig({
       "unplugin-vue-router/data-loaders/basic",
     ],
   },
-  define: { "process.env": {} },
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -55,12 +54,19 @@ export default defineConfig({
   base: "/",
   server: {
     port: 3000,
+    strictPort: true,
     proxy: {
       "/api": {
-        target: "http://localhost:8080",
+        // target: "http://localhost:8080",
+        target: "https://047b85f2c641.ngrok-free.app",
         changeOrigin: true,
         secure: false,
       },
     },
   },
-});
+  define: {
+    // This only affects your Vite (renderer) code, not Electron main.
+    "process.env.VITE_DEV_SERVER_URL":
+      command === "serve" ? '"http://localhost:3000/"' : '""',
+  },
+}));
